@@ -1,5 +1,5 @@
 # Debian-based node base image
-FROM node:20-bookworm
+FROM node:16-bullseye
 
 # Add `/app/node_modules/.bin` to $PATH
 ENV PATH /app/node_modules/.bin:$PATH
