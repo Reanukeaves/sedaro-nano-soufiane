@@ -1,121 +1,78 @@
+import doctest
 import json
-import random
+import bisect
 from functools import reduce
 from operator import __or__
+from random import random
 
-# Constants
-TIME_STEP = 0.01
-VARIANCE = 0.09
-INIT_TIME = -999999999
+# MODELING & SIMULATION
 
-# Initial state
 init = {
-    'Planet': {'time': 0, 'timeStep': TIME_STEP, 'x': 0, 'y': 0.1, 'vx': 0.1, 'vy': 0},
-    'Satellite': {'time': 0, 'timeStep': TIME_STEP, 'x': 0, 'y': 1, 'vx': 1, 'vy': 0},
+    'Planet': {'time': 0, 'timeStep': 0.01, 'x': 0, 'y': 0.1, 'vx': 0.1, 'vy': 0},
+    'Satellite': {'time': 0, 'timeStep': 0.01, 'x': 0, 'y': 1, 'vx': 1, 'vy': 0},
 }
 
-def propagate(agent_id, universe):
-    """Propagate agent_id from `time` to `time + timeStep`."""
-    state = universe[agent_id]
-    time_step = TIME_STEP + random.random() * VARIANCE
-    new_state = calculate_new_state(agent_id, state, universe, time_step)
-    return new_state
+def propagate(agentId, universe):
+    """Propagate agentId from `time` to `time + timeStep`."""
+    state = universe[agentId]
+    time, timeStep, x, y, vx, vy = state['time'], state['timeStep'], state['x'], state['y'], state['vx'], state['vy']
 
-def calculate_new_state(agent_id, state, universe, time_step):
-    #separate the physics calculations for each agent
-    if agent_id == 'Planet':
-        return calculate_planet_new_state(state, time_step)
-    elif agent_id == 'Satellite':
-        return calculate_satellite_new_state(state, universe, time_step)
+    if agentId == 'Planet':
+        x += vx * timeStep
+        y += vy * timeStep
+    elif agentId == 'Satellite':
+        px, py = universe['Planet']['x'], universe['Planet']['y']
+        dx = px - x
+        dy = py - y
+        fx = dx / (dx**2 + dy**2)**(3/2)
+        fy = dy / (dx**2 + dy**2)**(3/2)
+        vx += fx * timeStep
+        vy += fy * timeStep
+        x += vx * timeStep
+        y += vy * timeStep
 
-def calculate_planet_new_state(state, time_step):
-    x, y, vx, vy = state['x'], state['y'], state['vx'], state['vy']
-   
-    x += vx * time_step
-    y += vy * time_step
+    return {'time': time + timeStep, 'timeStep': 0.01+random()*0.09, 'x': x, 'y': y, 'vx': vx, 'vy': vy}
 
-    return {'time': state['time'] + time_step, 'timeStep': time_step, 'x': x, 'y': y, 'vx': vx, 'vy': vy}
-
-
-def calculate_satellite_new_state(state, universe, time_step):
-    # Extract planet and satellite states
-    planet_state = universe['Planet']
-    x, y, vx, vy = state['x'], state['y'], state['vx'], state['vy']
-    
-    dx = planet_state['x'] - x
-    dy = planet_state['y'] - y
-    distance_squared = dx**2 + dy**2
-    distance_cubed = distance_squared ** 1.5  #avoiding math.pow for performance
-
-    #Gravitational force calculation (simplified)
-    # Assuming G * mass_of_planet = 1 for simplicity
-    force_magnitude = 1 / distance_cubed
-
-    #Update velocity based on gravitational force
-    vx += force_magnitude * dx * time_step
-    vy += force_magnitude * dy * time_step
-
-  
-    x += vx * time_step
-    y += vy * time_step
-
-    return {'time': state['time'] + time_step, 'timeStep': time_step, 'x': x, 'y': y, 'vx': vx, 'vy': vy}
-
+# DATA STRUCTURE
 
 class QRangeStore:
-    def __init__(self):
-        self.store = []
+      def __init__(self):
+          self.store = []
 
-    def __setitem__(self, rng, value):
-        low, high = rng
-        if low >= high:
-            raise IndexError("Invalid Range.")
+      def __setitem__(self, rng, value):
+          low, high = rng
+          if low >= high:
+              raise IndexError("Invalid Range.")
+          self.store.append((low, high, value))
 
-        # keep the store sorted by inserting the new range in the correct position
-        index = self._find_insert_index(low)
-        self.store.insert(index, (low, high, value))
+      def __getitem__(self, key):
+          return [v for (l, h, v) in self.store if l <= key < h]
 
-    def __getitem__(self, key):
-        index = self._binary_search(key)
-        if index is not None:
-            _, _, value = self.store[index]
-            return value
-        raise IndexError("Not found.")
+def read(t):
+      try:
+          data = store[t]
+        
+          merged_data = {}
+          for d in data:
+              merged_data.update(d)
+          return merged_data
+      except IndexError:
+          return {}
 
-    def _find_insert_index(self, low):
-        #replaced with binary search for better efficiency
-        for index, (l, _, _) in enumerate(self.store):
-            if low < l:
-                return index
-        return len(self.store)
 
-    def _binary_search(self, key):
-        # Binary search querying
-        lo, hi = 0, len(self.store) - 1
-        while lo <= hi:
-            mid = (lo + hi) // 2
-            l, h, _ = self.store[mid]
-            if l <= key < h:
-                return mid
-            elif key < l:
-                hi = mid - 1
-            else:
-                lo = mid + 1
-        return None
 
-# Simulation logic
 store = QRangeStore()
-store[INIT_TIME, 0] = init
-times = {agent_id: state['time'] for agent_id, state in init.items()}
+store[-999999999, 0] = init
+times = {agentId: state['time'] for agentId, state in init.items()}
 
 for _ in range(500):
-    for agent_id in init:
-        t = times[agent_id]
-        universe = read(t - 0.001)
+    for agentId in init:
+        t = times[agentId]
+        universe = read(t-0.001)
         if set(universe) == set(init):
-            new_state = propagate(agent_id, universe)
-            store[t, new_state['time']] = {agent_id: new_state}
-            times[agent_id] = new_state['time']
+            newState = propagate(agentId, universe)
+            store[t, newState['time']] = {agentId: newState}
+            times[agentId] = newState['time']
 
 with open('./public/data.json', 'w') as f:
-    json.dump(store.store, f, indent=4)
+    f.write(json.dumps(store.store, indent=4))
