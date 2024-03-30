@@ -38,7 +38,7 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
 
     const earthMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
     const earth = new THREE.Mesh(
-      new THREE.SphereGeometry(1, 32, 32),
+      new THREE.SphereGeometry(0.5, 32, 32),
       earthMaterial
     );
     scene.add(earth);
@@ -80,42 +80,23 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
 
       const currentTime = (Date.now() / 1000) % simulationData.length;
       const currentIndex = Math.floor(currentTime);
-      const nextIndex = (currentIndex + 1) % simulationData.length;
 
       const frame = simulationData[currentIndex];
-      const nextFrame = simulationData[nextIndex];
 
-      if (frame && nextFrame && frame.Planet && frame.Satellite) {
-        const progress = currentTime - currentIndex;
-
-        const interpolatePosition = (
-          current: number,
-          next: number,
-          progress: number
-        ): number => {
-          return current + (next - current) * progress;
-        };
-
-        const satelliteX = interpolatePosition(
+      if (frame && frame.Planet && frame.Satellite) {
+        earthRef.current?.position.set(
+          frame.Planet.x,
+          frame.Planet.y,
+          frame.Planet.z || 0
+        );
+        satelliteRef.current?.position.set(
           frame.Satellite.x,
-          nextFrame.Satellite.x,
-          progress
-        );
-        const satelliteY = interpolatePosition(
           frame.Satellite.y,
-          nextFrame.Satellite.y,
-          progress
+          frame.Satellite.z || 0
         );
-        const satelliteZ = interpolatePosition(
-          frame.Satellite.z || 0,
-          nextFrame.Satellite.z || 0,
-          progress
-        );
-
-        satelliteRef.current?.position.set(satelliteX, satelliteY, satelliteZ);
       }
 
-      if (trajectoryRef.current && simulationData.length > 1) {
+      if (trajectoryRef.current) {
         const points = simulationData.map(
           (data) =>
             new THREE.Vector3(
