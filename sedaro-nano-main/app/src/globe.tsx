@@ -80,19 +80,61 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
 
       const currentTime = (Date.now() / 1000) % simulationData.length;
       const currentIndex = Math.floor(currentTime);
+      const nextIndex = (currentIndex + 1) % simulationData.length;
 
       const frame = simulationData[currentIndex];
+      const nextFrame = simulationData[nextIndex];
 
-      if (frame && frame.Planet && frame.Satellite) {
-        earthRef.current?.position.set(
+      const interpolationFactor = currentTime % 1;
+
+      if (
+        frame &&
+        frame.Planet &&
+        frame.Satellite &&
+        nextFrame &&
+        nextFrame.Satellite
+      ) {
+        const interpolatedPlanetX = THREE.MathUtils.lerp(
           frame.Planet.x,
+          nextFrame.Planet.x,
+          interpolationFactor
+        );
+        const interpolatedPlanetY = THREE.MathUtils.lerp(
           frame.Planet.y,
-          frame.Planet.z || 0
+          nextFrame.Planet.y,
+          interpolationFactor
+        );
+        const interpolatedPlanetZ = THREE.MathUtils.lerp(
+          frame.Planet.z || 0,
+          nextFrame.Planet.z || 0,
+          interpolationFactor
+        );
+
+        const interpolatedSatelliteX = THREE.MathUtils.lerp(
+          frame.Satellite.x,
+          nextFrame.Satellite.x,
+          interpolationFactor
+        );
+        const interpolatedSatelliteY = THREE.MathUtils.lerp(
+          frame.Satellite.y,
+          nextFrame.Satellite.y,
+          interpolationFactor
+        );
+        const interpolatedSatelliteZ = THREE.MathUtils.lerp(
+          frame.Satellite.z || 0,
+          nextFrame.Satellite.z || 0,
+          interpolationFactor
+        );
+
+        earthRef.current?.position.set(
+          interpolatedPlanetX,
+          interpolatedPlanetY,
+          interpolatedPlanetZ
         );
         satelliteRef.current?.position.set(
-          frame.Satellite.x,
-          frame.Satellite.y,
-          frame.Satellite.z || 0
+          interpolatedSatelliteX,
+          interpolatedSatelliteY,
+          interpolatedSatelliteZ
         );
       }
 
