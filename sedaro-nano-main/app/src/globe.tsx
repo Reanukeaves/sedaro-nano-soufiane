@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import styles from "./styles/layouts.module.scss";
 
 interface SimulationData {
   Planet: { x: number; y: number; z?: number };
@@ -25,7 +26,7 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
     const height = mountRef.current.clientHeight || window.innerHeight;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color("#000814");
+    scene.background = new THREE.Color("#192519");
 
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -37,7 +38,7 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
     rendererRef.current = renderer;
 
     const earthMaterial = new THREE.MeshBasicMaterial({
-      color: "#94d2bd",
+      color: "#0BFE0C",
       wireframe: true,
       wireframeLinewidth: 1,
     });
@@ -49,7 +50,7 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
     earthRef.current = earth;
 
     const satelliteMaterial = new THREE.MeshBasicMaterial({
-      color: "#ffffff",
+      color: "#0BFE0C",
       wireframe: true,
     });
     const satellite = new THREE.Mesh(
@@ -66,7 +67,7 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
     new OrbitControls(camera, renderer.domElement);
 
     const trajectoryMaterial = new THREE.LineDashedMaterial({
-      color: "#caf0f8",
+      color: "#007200",
       dashSize: 0.02,
       gapSize: 0.02,
       linewidth: 1,
@@ -195,7 +196,11 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
     };
   }, [simulationData]);
 
-  return <div ref={mountRef} style={{ width: "100%", height: "100vh" }} />;
+  return (
+    <section className={styles.mainWrapper__sim}>
+      <div ref={mountRef} style={{ width: "100%", height: "100vh" }} />
+    </section>
+  );
 };
 
 export default Globe;

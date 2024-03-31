@@ -1,6 +1,7 @@
 import Plot from "react-plotly.js";
 import React, { useEffect, useState } from "react";
 import Globe from "./globe";
+import styles from "./styles/layouts.module.scss";
 
 interface PlotData {
   x: number[];
@@ -81,21 +82,18 @@ const App: React.FC = () => {
   console.log("simulationData:", simulationData);
 
   return (
-    <>
-      <button onClick={() => setShowGlobe(!showGlobe)}>
+    <main className={styles.mainWrapper}>
+      <button
+        onClick={() => setShowGlobe(!showGlobe)}
+        className={styles.mainWrapper__toggleBtn}
+      >
         {showGlobe ? "Show Plot" : "Show Globe"}
       </button>
       {showGlobe ? (
         <Globe simulationData={simulationData} />
       ) : (
         <Plot
-          style={{
-            position: "fixed",
-            width: "100%",
-            height: "100%",
-            left: 0,
-            top: 0,
-          }}
+          className={styles.mainWrapper__plot}
           data={plotData.map((d) => ({ x: d.x, y: d.y }))}
           layout={{
             title: "Visualization",
@@ -104,7 +102,7 @@ const App: React.FC = () => {
           }}
         />
       )}
-    </>
+    </main>
   );
 };
 

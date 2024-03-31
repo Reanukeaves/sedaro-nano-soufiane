@@ -1,0 +1,70 @@
+.mainWrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  position: relative;
+  &__sim {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    &::before {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      background: linear-gradient(
+          rgba(18, 16, 16, 0) 50%,
+          rgba(0, 0, 0, 0.25) 50%
+        ),
+        linear-gradient(
+          90deg,
+          rgba(255, 0, 0, 0.06),
+          rgba(0, 255, 0, 0.02),
+          rgba(0, 0, 255, 0.06)
+        );
+      z-index: 4;
+      background-size: 100% 2px, 3px 100%;
+      pointer-events: none;
+    }
+    &::after {
+      animation: screenNoise 3s linear infinite;
+      clip-path: polygon(0 0, 100% 0, 100% 3px, 0 3px);
+      transform: translatex(10px);
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      z-index: 11;
+      height: 100%;
+      background-color: transparent;
+      background-size: 5px 5px, 5px 5px;
+      background-position: -1px -1px, -1px -1px;
+      background-image: linear-gradient(
+          rgba(255, 255, 255, 0.05) 1px,
+          transparent 1px
+        ),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      mix-blend-mode: difference;
+      background-size: 100% 2px, 3px 100%;
+      margin-left: -20px;
+    }
+  }
+}
+
+@keyframes screenNoise {
+  to {
+    clip-path: polygon(
+      0 calc(100% - 0.5em),
+      100% calc(100% - 0.5em),
+      0 100%,
+      0 100%
+    );
+  }
+}
