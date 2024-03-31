@@ -82,7 +82,7 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
       requestAnimationFrame(animate);
 
       if (!simulationData || simulationData.length === 0) {
-        //console.error("Simulation data not loaded or is empty");
+        console.error("Simulation data not loaded or is empty");
         return;
       }
 
@@ -148,19 +148,34 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
 
       earthRef.current?.rotateY(0.003);
 
-      //update the trajectory to only show the path ahead of the satellite
       if (trajectoryRef.current) {
-        const futurePoints = simulationData
-          .slice(currentIndex)
-          .map(
-            (data) =>
-              new THREE.Vector3(
-                data.Satellite.x,
-                data.Satellite.y,
-                data.Satellite.z || 0
-              )
-          );
-        trajectoryRef.current.geometry.setFromPoints(futurePoints);
+        let points;
+        if (currentIndex > simulationData.length - 10) {
+          points = simulationData
+            .slice(currentIndex)
+            .concat(simulationData.slice(0, nextIndex))
+            .map(
+              (data) =>
+                new THREE.Vector3(
+                  data.Satellite.x,
+                  data.Satellite.y,
+                  data.Satellite.z || 0
+                )
+            );
+        } else {
+          points = simulationData
+            .slice(currentIndex, currentIndex + 10)
+            .map(
+              (data) =>
+                new THREE.Vector3(
+                  data.Satellite.x,
+                  data.Satellite.y,
+                  data.Satellite.z || 0
+                )
+            );
+        }
+
+        trajectoryRef.current.geometry.setFromPoints(points);
         trajectoryRef.current.geometry.computeBoundingSphere();
         trajectoryRef.current.computeLineDistances();
       }
