@@ -25,7 +25,7 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
     const height = mountRef.current.clientHeight || window.innerHeight;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xaaaaaa);
+    scene.background = new THREE.Color("#000814");
 
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -36,17 +36,24 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
     cameraRef.current = camera;
     rendererRef.current = renderer;
 
-    const earthMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+    const earthMaterial = new THREE.MeshBasicMaterial({
+      color: "#94d2bd",
+      wireframe: true,
+      wireframeLinewidth: 1,
+    });
     const earth = new THREE.Mesh(
-      new THREE.SphereGeometry(0.5, 32, 32),
+      new THREE.SphereGeometry(0.375, 16, 16),
       earthMaterial
     );
     scene.add(earth);
     earthRef.current = earth;
 
-    const satelliteMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+    const satelliteMaterial = new THREE.MeshBasicMaterial({
+      color: "#ffffff",
+      wireframe: true,
+    });
     const satellite = new THREE.Mesh(
-      new THREE.SphereGeometry(0.05, 16, 16),
+      new THREE.BoxGeometry(0.1, 0.1, 0.1),
       satelliteMaterial
     );
     scene.add(satellite);
@@ -59,22 +66,23 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
     new OrbitControls(camera, renderer.domElement);
 
     const trajectoryMaterial = new THREE.LineDashedMaterial({
-      color: 0xff0000,
-      dashSize: 0.1,
-      gapSize: 0.1,
+      color: "#caf0f8",
+      dashSize: 0.02,
+      gapSize: 0.02,
+      linewidth: 1,
     });
     const trajectoryGeometry = new THREE.BufferGeometry();
     const trajectory = new THREE.Line(trajectoryGeometry, trajectoryMaterial);
     scene.add(trajectory);
     trajectoryRef.current = trajectory;
 
-    camera.position.z = 5;
+    camera.position.z = 5 * 0.5;
 
     const animate = () => {
       requestAnimationFrame(animate);
 
       if (!simulationData || simulationData.length === 0) {
-        console.error("Simulation data not loaded or is empty");
+        //console.error("Simulation data not loaded or is empty");
         return;
       }
 
@@ -138,16 +146,21 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
         );
       }
 
+      earthRef.current?.rotateY(0.003);
+
+      //update the trajectory to only show the path ahead of the satellite
       if (trajectoryRef.current) {
-        const points = simulationData.map(
-          (data) =>
-            new THREE.Vector3(
-              data.Satellite.x,
-              data.Satellite.y,
-              data.Satellite.z || 0
-            )
-        );
-        trajectoryRef.current.geometry.setFromPoints(points);
+        const futurePoints = simulationData
+          .slice(currentIndex)
+          .map(
+            (data) =>
+              new THREE.Vector3(
+                data.Satellite.x,
+                data.Satellite.y,
+                data.Satellite.z || 0
+              )
+          );
+        trajectoryRef.current.geometry.setFromPoints(futurePoints);
         trajectoryRef.current.geometry.computeBoundingSphere();
         trajectoryRef.current.computeLineDistances();
       }
