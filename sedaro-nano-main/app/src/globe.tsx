@@ -82,76 +82,75 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
       requestAnimationFrame(animate);
 
       if (!simulationData || simulationData.length === 0) {
-        //console.error("Simulation data not loaded or is empty");
+        console.error("Simulation data not loaded or is empty");
         return;
       }
 
-      const currentTime = (Date.now() / 1000) % simulationData.length;
+      const totalLength = simulationData.length;
+      const currentTime = (Date.now() / 1000) % totalLength;
       const currentIndex = Math.floor(currentTime);
-      const nextIndex = (currentIndex + 1) % simulationData.length;
+      const nextIndex = (currentIndex + 1) % totalLength;
 
       const frame = simulationData[currentIndex];
-      const nextFrame = simulationData[nextIndex];
+      const nextFrame = simulationData[nextIndex] || simulationData[0]; // loop to start
 
       const interpolationFactor = currentTime % 1;
 
-      if (
-        frame &&
-        frame.Planet &&
-        frame.Satellite &&
-        nextFrame &&
-        nextFrame.Satellite
-      ) {
-        const interpolatedPlanetX = THREE.MathUtils.lerp(
-          frame.Planet.x,
-          nextFrame.Planet.x,
-          interpolationFactor
-        );
-        const interpolatedPlanetY = THREE.MathUtils.lerp(
-          frame.Planet.y,
-          nextFrame.Planet.y,
-          interpolationFactor
-        );
-        const interpolatedPlanetZ = THREE.MathUtils.lerp(
-          frame.Planet.z || 0,
-          nextFrame.Planet.z || 0,
-          interpolationFactor
-        );
+      if (frame && frame.Planet && frame.Satellite) {
+        const interpolatedPlanet = {
+          x: THREE.MathUtils.lerp(
+            frame.Planet.x,
+            nextFrame.Planet.x,
+            interpolationFactor
+          ),
+          y: THREE.MathUtils.lerp(
+            frame.Planet.y,
+            nextFrame.Planet.y,
+            interpolationFactor
+          ),
+          z: THREE.MathUtils.lerp(
+            frame.Planet.z || 0,
+            nextFrame.Planet.z || 0,
+            interpolationFactor
+          ),
+        };
 
-        const interpolatedSatelliteX = THREE.MathUtils.lerp(
-          frame.Satellite.x,
-          nextFrame.Satellite.x,
-          interpolationFactor
-        );
-        const interpolatedSatelliteY = THREE.MathUtils.lerp(
-          frame.Satellite.y,
-          nextFrame.Satellite.y,
-          interpolationFactor
-        );
-        const interpolatedSatelliteZ = THREE.MathUtils.lerp(
-          frame.Satellite.z || 0,
-          nextFrame.Satellite.z || 0,
-          interpolationFactor
-        );
+        // Interpolate satellite positions
+        const interpolatedSatellite = {
+          x: THREE.MathUtils.lerp(
+            frame.Satellite.x,
+            nextFrame.Satellite.x,
+            interpolationFactor
+          ),
+          y: THREE.MathUtils.lerp(
+            frame.Satellite.y,
+            nextFrame.Satellite.y,
+            interpolationFactor
+          ),
+          z: THREE.MathUtils.lerp(
+            frame.Satellite.z || 0,
+            nextFrame.Satellite.z || 0,
+            interpolationFactor
+          ),
+        };
 
         earthRef.current?.position.set(
-          interpolatedPlanetX,
-          interpolatedPlanetY,
-          interpolatedPlanetZ
+          interpolatedPlanet.x,
+          interpolatedPlanet.y,
+          interpolatedPlanet.z
         );
         satelliteRef.current?.position.set(
-          interpolatedSatelliteX,
-          interpolatedSatelliteY,
-          interpolatedSatelliteZ
+          interpolatedSatellite.x,
+          interpolatedSatellite.y,
+          interpolatedSatellite.z
         );
       }
 
       earthRef.current?.rotateY(0.003);
 
-      // Update the trajectory to only show the path ahead of the satellite
       if (trajectoryRef.current) {
-        const futurePoints = simulationData
-          .slice(currentIndex)
+        let points = simulationData
+          .slice(currentIndex, totalLength)
           .map(
             (data) =>
               new THREE.Vector3(
@@ -160,7 +159,24 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
                 data.Satellite.z || 0
               )
           );
-        trajectoryRef.current.geometry.setFromPoints(futurePoints);
+
+        // If the current index is at the end of the dataset, we start adding points from the beginning
+        if (currentIndex >= totalLength - 10) {
+          const wrapAroundCount = 10 - (totalLength - currentIndex);
+          const additionalPoints = simulationData
+            .slice(0, wrapAroundCount)
+            .map(
+              (data) =>
+                new THREE.Vector3(
+                  data.Satellite.x,
+                  data.Satellite.y,
+                  data.Satellite.z || 0
+                )
+            );
+          points = points.concat(additionalPoints);
+        }
+
+        trajectoryRef.current.geometry.setFromPoints(points);
         trajectoryRef.current.geometry.computeBoundingSphere();
         trajectoryRef.current.computeLineDistances();
       }
