@@ -2,16 +2,8 @@ import Plot from "react-plotly.js";
 import React, { useEffect, useState } from "react";
 import Globe from "./globe";
 import styles from "./styles/layouts.module.scss";
-
-interface PlotData {
-  x: number[];
-  y: number[];
-}
-
-interface SimulationData {
-  Planet: { x: number; y: number };
-  Satellite: { x: number; y: number };
-}
+import { PlotData, SimulationData } from "./types/interfaces";
+import variables from "./styles/utils.module.scss";
 
 const App: React.FC = () => {
   const [plotData, setPlotData] = useState<PlotData[]>([]);
@@ -80,15 +72,24 @@ const App: React.FC = () => {
   }, []);
 
   console.log("simulationData:", simulationData);
-
+  const buttonClass = (isActive: boolean) =>
+    `${styles.mainWrapper__toggleBtn} ${isActive ? styles.active : ""}`;
   return (
     <main className={styles.mainWrapper}>
-      <button
-        onClick={() => setShowGlobe(!showGlobe)}
-        className={styles.mainWrapper__toggleBtn}
-      >
-        {showGlobe ? "Show Plot" : "Show Globe"}
-      </button>
+      <nav className={styles.mainWrapper__buttons}>
+        <button
+          onClick={() => setShowGlobe(true)}
+          className={buttonClass(showGlobe)}
+        >
+          Show Globe
+        </button>
+        <button
+          onClick={() => setShowGlobe(false)}
+          className={buttonClass(!showGlobe)}
+        >
+          Show Plot
+        </button>
+      </nav>
       {showGlobe ? (
         <Globe simulationData={simulationData} />
       ) : (
@@ -97,8 +98,14 @@ const App: React.FC = () => {
           data={plotData.map((d) => ({ x: d.x, y: d.y }))}
           layout={{
             title: "Visualization",
-            yaxis: { scaleanchor: "x" },
+            yaxis: { scaleanchor: "x", color: variables.lightGreen },
             autosize: true,
+            plot_bgcolor: variables.dark,
+            paper_bgcolor: variables.dark,
+            font: { color: variables.lightGreen },
+            xaxis: { color: variables.lightGreen },
+            // change the color of the curve
+            line: { color: variables.lightGreen },
           }}
         />
       )}

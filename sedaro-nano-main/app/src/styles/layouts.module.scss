@@ -1,13 +1,21 @@
+@import "./utils.module.scss";
+
 .mainWrapper {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   background-color: #f5f5f5;
   position: relative;
+  background-color: $dark;
   &__sim {
     position: relative;
     height: 100%;
     width: 100%;
+    cursor: grab;
+    border-bottom: solid 2px $light-green;
+    border-right: solid 2px $light-green;
+    border-left: solid 2px $light-green;
+
     &::before {
       content: " ";
       display: block;
@@ -55,6 +63,41 @@
       background-size: 100% 2px, 3px 100%;
       margin-left: -20px;
     }
+    &__coordinatesDisplay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      padding: 1rem;
+      background-color: $dark;
+      color: $light-green;
+      font-size: 1.4rem;
+      height: 100%;
+      border-right: solid 2px $light-green;
+
+      @extend .noselect;
+    }
+  }
+  &__buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.4rem;
+    width: 100%;
+    padding-block: 0.7rem;
+    border: solid 2px $light-green;
+    background-color: $dark;
+    button {
+      background: transparent;
+      color: $light-green;
+      font-size: 1.3rem;
+      cursor: pointer;
+      border: none;
+    }
+  }
+  &__plot {
+    position: absolute;
+    top: 0;
+    left: 0;
   }
 }
 
@@ -67,4 +110,11 @@
       0 100%
     );
   }
+}
+
+.active {
+  background-color: $light-green !important;
+  color: $dark !important;
+  border: solid 2px $light-green !important;
+  cursor: not-allowed;
 }

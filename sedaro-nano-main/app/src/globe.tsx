@@ -1,12 +1,8 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import styles from "./styles/layouts.module.scss";
-
-interface SimulationData {
-  Planet: { x: number; y: number; z?: number };
-  Satellite: { x: number; y: number; z?: number };
-}
+import { SimulationData } from "./types/interfaces";
 
 const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
   simulationData,
@@ -19,18 +15,31 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
   const satelliteRef = useRef<THREE.Mesh | null>(null);
   const trajectoryRef = useRef<THREE.Line | null>(null);
 
+  const [planetPosition, setPlanetPosition] = useState({ x: 0, y: 0, z: 0 });
+  const [satellitePosition, setSatellitePosition] = useState({
+    x: 0,
+    y: 0,
+    z: 0,
+  });
+
   useEffect(() => {
     if (!mountRef.current) return;
 
-    const width = mountRef.current.clientWidth;
-    const height = mountRef.current.clientHeight || window.innerHeight;
-
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color("#192519");
+    scene.background = new THREE.Color("#001c00");
 
-    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(
+      55,
+      mountRef.current.clientWidth / mountRef.current.clientHeight,
+      0.2,
+      1000
+    );
+    camera.position.z = 3;
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(width, height);
+    renderer.setSize(
+      mountRef.current.clientWidth,
+      mountRef.current.clientHeight
+    );
     mountRef.current.appendChild(renderer.domElement);
 
     sceneRef.current = scene;
@@ -64,7 +73,8 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
     light.position.set(5, 5, 5);
     scene.add(light);
 
-    new OrbitControls(camera, renderer.domElement);
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 0, 0);
 
     const trajectoryMaterial = new THREE.LineDashedMaterial({
       color: "#007200",
@@ -77,7 +87,7 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
     scene.add(trajectory);
     trajectoryRef.current = trajectory;
 
-    camera.position.z = 5 * 0.5;
+    camera.position.z = 3;
 
     const animate = () => {
       requestAnimationFrame(animate);
@@ -145,6 +155,9 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
           interpolatedSatellite.y,
           interpolatedSatellite.z
         );
+
+        setPlanetPosition(interpolatedPlanet);
+        setSatellitePosition(interpolatedSatellite);
       }
 
       earthRef.current?.rotateY(0.003);
@@ -198,6 +211,14 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
 
   return (
     <section className={styles.mainWrapper__sim}>
+      <div className={styles.mainWrapper__sim__coordinatesDisplay}>
+        <h3>Planet Position</h3>
+        <p>x: {planetPosition.x.toFixed(2)}</p>
+        <p>y: {planetPosition.y.toFixed(2)}</p>
+        <h3>Satellite Position</h3>
+        <p>x: {satellitePosition.x.toFixed(2)}</p>
+        <p>y: {satellitePosition.y.toFixed(2)}</p>
+      </div>
       <div ref={mountRef} style={{ width: "100%", height: "100vh" }} />
     </section>
   );
