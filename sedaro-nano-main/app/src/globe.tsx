@@ -93,7 +93,7 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
       requestAnimationFrame(animate);
 
       if (!simulationData || simulationData.length === 0) {
-        console.error("Simulation data not loaded or is empty");
+        //console.error("Simulation data not loaded or is empty");
         return;
       }
 

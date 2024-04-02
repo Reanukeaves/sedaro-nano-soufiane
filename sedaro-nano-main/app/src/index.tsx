@@ -1,19 +1,22 @@
-import App from "./App";
-import React from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
+import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import "./styles/globals.scss";
 
 const rootElement = document.getElementById("root")!;
 const root = ReactDOM.createRoot(rootElement);
 
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+const Main = () => {
+  useEffect(() => {
+    reportWebVitals(console.log);
+  }, []);
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+  return (
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+};
+
+root.render(<Main />);
