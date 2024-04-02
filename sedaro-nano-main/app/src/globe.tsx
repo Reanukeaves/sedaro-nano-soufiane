@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import styles from "./styles/layouts.module.scss";
 import { SimulationData } from "./types/interfaces";
+import OrbitalEccentricity from "./orbitalEccentricity";
 
 const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
   simulationData,
@@ -218,6 +219,7 @@ const Globe: React.FC<{ simulationData: SimulationData[] }> = ({
         <h3>Satellite Position</h3>
         <p>x: {satellitePosition.x.toFixed(2)}</p>
         <p>y: {satellitePosition.y.toFixed(2)}</p>
+        <OrbitalEccentricity simulationData={simulationData} />
       </div>
       <div ref={mountRef} style={{ width: "100%", height: "100vh" }} />
     </section>
