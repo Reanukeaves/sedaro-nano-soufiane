@@ -72,3 +72,5 @@ I created a component to calculate orbital eccentricity(\(e = \frac{r_a - r_p}{r
 #### Velocity Statistics
 
 Developed a component that scales velocity statistics to realistic orbital velocities, aligning with typical satellite behavior. This scaling is based on the max observed simulation velocity (0.145) to a typical LEO velocity ~7.8 km/s (per my google search again).
+
+![Screenshot](sat_sim.jpg "Screenshot of the interface")
