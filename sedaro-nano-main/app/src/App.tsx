@@ -1,9 +1,9 @@
+import Globe from "./globe";
 import Plot from "react-plotly.js";
 import React, { useEffect, useState } from "react";
-import Globe from "./globe";
 import styles from "./styles/layouts.module.scss";
-import { PlotData, SimulationData } from "./types/interfaces";
 import variables from "./styles/utils.module.scss";
+import { PlotData, SimulationData } from "./types/interfaces";
 
 const App: React.FC = () => {
   const [plotData, setPlotData] = useState<PlotData[]>([]);
