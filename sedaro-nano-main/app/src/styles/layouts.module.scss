@@ -60,7 +60,7 @@
         ),
         linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
       mix-blend-mode: difference;
-      background-size: 100% 2px, 3px 100%;
+      background-size: 100% 2px, 3px 100%; 
       margin-left: -20px;
     }
     &__coordinatesDisplay {
@@ -75,6 +75,15 @@
       border-right: solid 2px $light-green;
 
       @extend .noselect;
+
+      h3{
+        font-size: 1.3rem;
+        padding-block: .2rem ;
+        text-shadow: 0px 1px 5px $light-green;
+      }
+      p{
+        font-size: .88rem;
+      }
     }
   }
   &__buttons {
