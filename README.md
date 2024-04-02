@@ -46,7 +46,7 @@ I had a lot of fun with this one. I knew I needed to render the data in 3D the m
 
 #### Why Three.js?
 
-Three.js was the natural choice to bring the orbital paths into an interactive 3D space. This is obviously not something I would do on the job (unless it was for marketing purpses) but I wanted to build something fun.
+Three.js was the natural choice to bring the orbital paths into an interactive 3D space. While it’s not something I'd usually do outside of marketing contexts, I embraced the chance to make something both fun and technically intriguing.
 
 #### Visuals
 
